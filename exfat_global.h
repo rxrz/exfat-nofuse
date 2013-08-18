@@ -143,12 +143,12 @@ extern "C" {
 #define PRINTK(...)			\
 	do {								\
 		printk ("%u: ", dbg_count);	\
-		printk(__VA_ARGS__);		\
+		printk("[EXFAT] " __VA_ARGS__);		\
 	} while(0)
 #endif
 #define PRINTK(...)			\
 	do {								\
-		printk(__VA_ARGS__);		\
+		printk("[EXFAT] " __VA_ARGS__);		\
 	} while(0)
 #else
 #define PRINTK(...)

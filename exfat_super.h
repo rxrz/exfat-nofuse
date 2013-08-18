@@ -58,13 +58,15 @@ struct exfat_sb_info {
 	BD_INFO_T bd_info;
 
 	struct exfat_mount_options options;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,7,00)
+	int s_dirt;
+	struct mutex s_lock;
+#endif
 
 	struct nls_table *nls_disk; /* Codepage used on disk */
 	struct nls_table *nls_io;   /* Charset used for input and display */
 
 	struct inode *fat_inode;
-	struct mutex s_lock;
-	short s_dirt;
 
 	spinlock_t inode_hash_lock;
 	struct hlist_head inode_hashtable[EXFAT_HASH_SIZE];
@@ -82,7 +84,10 @@ struct exfat_inode_info {
 	/* NOTE: mmu_private is 64bits, so must hold ->i_mutex to access */
 	loff_t mmu_private;         /* physically allocated size */
 	loff_t i_pos;               /* on-disk position of directory entry or 0 */
-	struct hlist_node i_fat_hash;    /* hash by i_location */
+	struct hlist_node i_hash_fat;    /* hash by i_location */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,00)
+	struct rw_semaphore truncate_lock;
+#endif
 	struct inode vfs_inode;
 	struct rw_semaphore i_alloc_sem; /* protect bmap against truncate */
 };
