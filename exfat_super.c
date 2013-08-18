@@ -527,7 +527,6 @@ static struct dentry *exfat_lookup(struct inode *dir, struct dentry *dentry,
 #else
 static struct dentry *exfat_lookup(struct inode *dir, struct dentry *dentry,
 								   struct nameidata *nd) {
-						   struct nameidata *nd)
 #endif
 {
 	struct super_block *sb = dir->i_sb;
