@@ -296,7 +296,7 @@ INT32 FsTruncateFile(struct inode *inode, UINT64 old_size, UINT64 new_size)
 	/* acquire the lock for file system critical section */
 	sm_P(&(fs_struct[p_fs->drv].v_sem));
 
-	PRINTK("FsTruncateFile entered (inode %p size %llu\n", inode, new_size);
+	PRINTK("FsTruncateFile entered (inode %p size %llu)\n", inode, new_size);
 
 	err = ffsTruncateFile(inode, old_size, new_size);
 
