@@ -2698,6 +2698,7 @@ module_exit(exit_exfat);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("exFAT Filesystem Driver");
+MODULE_VERSION(EXFAT_VERSION);
 #ifdef MODULE_ALIAS_FS
 #if defined(CONFIG_MACH_LGE) || defined(CONFIG_HTC_BATT_CORE)
 MODULE_ALIAS_FS("texfat");
