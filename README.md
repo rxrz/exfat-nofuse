@@ -1,7 +1,10 @@
-exFAT-nofuse
+exFAT-nofuse v1.2.19
 ============
 
 Linux non-fuse read/write kernel driver for the exFAT, FAT12, FAT16 and vfat (FAT32) file systems.<br />
+
+**Full adaptation to kernel 4.19.y**
+
 
 Installing as a stand-alone module:
 ====================================
