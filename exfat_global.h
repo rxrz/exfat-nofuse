@@ -95,13 +95,13 @@ extern "C" {
 #define STRNCMP(str1, str2, n)          strncmp(str1, str2, n)
 #define STRLEN(str)                     strlen(str)
 
-	INT32 __wstrchr(UINT16 *str, UINT16 wchar);
-	INT32 __wstrlen(UINT16 *str);
+	s32 __wstrchr(u16 *str, u16 wchar);
+	s32 __wstrlen(u16 *str);
 
 #define WSTRCHR(str, wchar)             __wstrchr(str, wchar)
 #define WSTRLEN(str)                    __wstrlen(str)
 
-#if EXFAT_CONFIG_DEBUG_MSG
+#ifdef CONFIG_EXFAT_DEBUG_MSG
 #define PRINTK(...)			\
 	do {								\
 		printk("[EXFAT] " __VA_ARGS__);	\
@@ -110,16 +110,16 @@ extern "C" {
 #define PRINTK(...)
 #endif
 
-	void    Bitmap_set_all(UINT8 *bitmap, INT32 mapsize);
-	void    Bitmap_clear_all(UINT8 *bitmap, INT32 mapsize);
-	INT32   Bitmap_test(UINT8 *bitmap, INT32 i);
-	void    Bitmap_set(UINT8 *bitmap, INT32 i);
-	void    Bitmap_clear(UINT8 *bitmpa, INT32 i);
-	void    Bitmap_nbits_set(UINT8 *bitmap, INT32 offset, INT32 nbits);
-	void    Bitmap_nbits_clear(UINT8 *bitmap, INT32 offset, INT32 nbits);
+	void    Bitmap_set_all(u8 *bitmap, s32 mapsize);
+	void    Bitmap_clear_all(u8 *bitmap, s32 mapsize);
+	s32   Bitmap_test(u8 *bitmap, s32 i);
+	void    Bitmap_set(u8 *bitmap, s32 i);
+	void    Bitmap_clear(u8 *bitmpa, s32 i);
+	void    Bitmap_nbits_set(u8 *bitmap, s32 offset, s32 nbits);
+	void    Bitmap_nbits_clear(u8 *bitmap, s32 offset, s32 nbits);
 
-	void    my_itoa(INT8 *buf, INT32 v);
-	INT32   my_log2(UINT32 v);
+	void    my_itoa(s8 *buf, s32 v);
+	s32   my_log2(u32 v);
 
 #ifdef PRINT
 #undef PRINT

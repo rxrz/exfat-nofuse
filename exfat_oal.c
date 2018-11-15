@@ -35,13 +35,13 @@
 
 DECLARE_MUTEX(z_sem);
 
-INT32 sm_init(struct semaphore *sm)
+s32 sm_init(struct semaphore *sm)
 {
 	sema_init(sm, 1);
 	return(0);
 }
 
-INT32 sm_P(struct semaphore *sm)
+s32 sm_P(struct semaphore *sm)
 {
 	down(sm);
 	return 0;
@@ -83,11 +83,17 @@ static time_t accum_days_in_year[] = {
 };
 
 
-TIMESTAMP_T *tm_current(TIMESTAMP_T *tp, UINT8 tz_utc)
+TIMESTAMP_T *tm_current(TIMESTAMP_T *tp, u8 tz_utc)
 {
-	struct timespec ts = CURRENT_TIME_SEC;
-	time_t second = ts.tv_sec;
-	time_t day, leap_day, month, year;
+	time_t second, day, leap_day, month, year;
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0)
+	struct timespec ts;
+	ts = CURRENT_TIME_SEC;
+	second = ts.tv_sec;
+#else
+	second = ktime_get_real_seconds();
+#endif
 
 	if (!tz_utc)
 		second -= sys_tz.tz_minuteswest * SECS_PER_MIN;

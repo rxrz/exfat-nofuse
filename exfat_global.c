@@ -19,7 +19,7 @@
 #include "exfat_config.h"
 #include "exfat_global.h"
 
-INT32 __wstrchr(UINT16 *str, UINT16 wchar)
+s32 __wstrchr(u16 *str, u16 wchar)
 {
 	while (*str) {
 		if (*(str++) == wchar) return(1);
@@ -27,9 +27,9 @@ INT32 __wstrchr(UINT16 *str, UINT16 wchar)
 	return(0);
 }
 
-INT32 __wstrlen(UINT16 *str)
+s32 __wstrlen(u16 *str)
 {
-	INT32 length = 0;
+	s32 length = 0;
 
 	while (*(str++)) length++;
 	return(length);
@@ -38,57 +38,57 @@ INT32 __wstrlen(UINT16 *str)
 #define BITMAP_LOC(v)           ((v) >> 3)
 #define BITMAP_SHIFT(v)         ((v) & 0x07)
 
-void Bitmap_set_all(UINT8 *bitmap, INT32 mapsize)
+void Bitmap_set_all(u8 *bitmap, s32 mapsize)
 {
 	MEMSET(bitmap, 0xFF, mapsize);
 }
 
-void Bitmap_clear_all(UINT8 *bitmap, INT32 mapsize)
+void Bitmap_clear_all(u8 *bitmap, s32 mapsize)
 {
 	MEMSET(bitmap, 0x0, mapsize);
 }
 
-INT32 Bitmap_test(UINT8 *bitmap, INT32 i)
+s32 Bitmap_test(u8 *bitmap, s32 i)
 {
-	UINT8 data;
+	u8 data;
 
 	data = bitmap[BITMAP_LOC(i)];
 	if ((data >> BITMAP_SHIFT(i)) & 0x01) return(1);
 	return(0);
 }
 
-void Bitmap_set(UINT8 *bitmap, INT32 i)
+void Bitmap_set(u8 *bitmap, s32 i)
 {
 	bitmap[BITMAP_LOC(i)] |= (0x01 << BITMAP_SHIFT(i));
 }
 
-void Bitmap_clear(UINT8 *bitmap, INT32 i)
+void Bitmap_clear(u8 *bitmap, s32 i)
 {
 	bitmap[BITMAP_LOC(i)] &= ~(0x01 << BITMAP_SHIFT(i));
 }
 
-void Bitmap_nbits_set(UINT8 *bitmap, INT32 offset, INT32 nbits)
+void Bitmap_nbits_set(u8 *bitmap, s32 offset, s32 nbits)
 {
-	INT32   i;
+	s32   i;
 
 	for (i = 0; i < nbits; i++) {
 		Bitmap_set(bitmap, offset+i);
 	}
 }
 
-void Bitmap_nbits_clear(UINT8 *bitmap, INT32 offset, INT32 nbits)
+void Bitmap_nbits_clear(u8 *bitmap, s32 offset, s32 nbits)
 {
-	INT32   i;
+	s32   i;
 
 	for (i = 0; i < nbits; i++) {
 		Bitmap_clear(bitmap, offset+i);
 	}
 }
 
-void my_itoa(INT8 *buf, INT32 v)
+void my_itoa(s8 *buf, s32 v)
 {
-	INT32 mod[10];
-	INT32 i;
+	s32 mod[10];
+	s32 i;
 
 	for (i = 0; i < 10; i++) {
 		mod[i] = (v % 10);
@@ -100,15 +100,15 @@ void my_itoa(INT8 *buf, INT32 v)
 		i--;
 
 	for (; i >= 0; i--) {
-		*buf = (UINT8) ('0' + mod[i]);
+		*buf = (u8) ('0' + mod[i]);
 		buf++;
 	}
 	*buf = '\0';
 }
 
-INT32 my_log2(UINT32 v)
+s32 my_log2(u32 v)
 {
-	UINT32 bits = 0;
+	u32 bits = 0;
 
 	while (v > 1) {
 		if (v & 0x01) return(-1);

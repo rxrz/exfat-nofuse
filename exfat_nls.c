@@ -27,22 +27,22 @@
 
 #include <linux/nls.h>
 
-static UINT16 bad_dos_chars[] = {
+static u16 bad_dos_chars[] = {
 	0x002B, 0x002C, 0x003B, 0x003D, 0x005B, 0x005D,
 	0xFF0B, 0xFF0C, 0xFF1B, 0xFF1D, 0xFF3B, 0xFF3D,
 	0
 };
 
-static UINT16 bad_uni_chars[] = {
+static u16 bad_uni_chars[] = {
 	0x0022,         0x002A, 0x002F, 0x003A,
 	0x003C, 0x003E, 0x003F, 0x005C, 0x007C,
 	0
 };
 
-static INT32  convert_uni_to_ch(struct nls_table *nls, UINT8 *ch, UINT16 uni, INT32 *lossy);
-static INT32  convert_ch_to_uni(struct nls_table *nls, UINT16 *uni, UINT8 *ch, INT32 *lossy);
+static s32  convert_uni_to_ch(struct nls_table *nls, u8 *ch, u16 uni, s32 *lossy);
+static s32  convert_ch_to_uni(struct nls_table *nls, u16 *uni, u8 *ch, s32 *lossy);
 
-UINT16 nls_upper(struct super_block *sb, UINT16 a)
+u16 nls_upper(struct super_block *sb, u16 a)
 {
 	FS_INFO_T *p_fs = &(EXFAT_SB(sb)->fs_info);
 
@@ -54,14 +54,14 @@ UINT16 nls_upper(struct super_block *sb, UINT16 a)
 		return a;
 }
 
-INT32 nls_dosname_cmp(struct super_block *sb, UINT8 *a, UINT8 *b)
+s32 nls_dosname_cmp(struct super_block *sb, u8 *a, u8 *b)
 {
 	return(STRNCMP((void *) a, (void *) b, DOS_NAME_LENGTH));
 }
 
-INT32 nls_uniname_cmp(struct super_block *sb, UINT16 *a, UINT16 *b)
+s32 nls_uniname_cmp(struct super_block *sb, u16 *a, u16 *b)
 {
-	INT32 i;
+	s32 i;
 
 	for (i = 0; i < MAX_NAME_LENGTH; i++, a++, b++) {
 		if (nls_upper(sb, *a) != nls_upper(sb, *b)) return(1);
@@ -70,28 +70,28 @@ INT32 nls_uniname_cmp(struct super_block *sb, UINT16 *a, UINT16 *b)
 	return(0);
 }
 
-void nls_uniname_to_dosname(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_NAME_T *p_uniname, INT32 *p_lossy)
+void nls_uniname_to_dosname(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_NAME_T *p_uniname, s32 *p_lossy)
 {
-	INT32 i, j, len, lossy = FALSE;
-	UINT8 buf[MAX_CHARSET_SIZE];
-	UINT8 lower = 0, upper = 0;
-	UINT8 *dosname = p_dosname->name;
-	UINT16 *uniname = p_uniname->name;
-	UINT16 *p, *last_period;
+	s32 i, j, len, lossy = FALSE;
+	u8 buf[MAX_CHARSET_SIZE];
+	u8 lower = 0, upper = 0;
+	u8 *dosname = p_dosname->name;
+	u16 *uniname = p_uniname->name;
+	u16 *p, *last_period;
 	struct nls_table *nls = EXFAT_SB(sb)->nls_disk;
 
 	for (i = 0; i < DOS_NAME_LENGTH; i++) {
 		*(dosname+i) = ' ';
 	}
 
-	if (!nls_uniname_cmp(sb, uniname, (UINT16 *) UNI_CUR_DIR_NAME)) {
+	if (!nls_uniname_cmp(sb, uniname, (u16 *) UNI_CUR_DIR_NAME)) {
 		*(dosname) = '.';
 		p_dosname->name_case = 0x0;
 		if (p_lossy != NULL) *p_lossy = FALSE;
 		return;
 	}
 
-	if (!nls_uniname_cmp(sb, uniname, (UINT16 *) UNI_PAR_DIR_NAME)) {
+	if (!nls_uniname_cmp(sb, uniname, (u16 *) UNI_PAR_DIR_NAME)) {
 		*(dosname) = '.';
 		*(dosname+1) = '.';
 		p_dosname->name_case = 0x0;
@@ -101,7 +101,7 @@ void nls_uniname_to_dosname(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_N
 
 	last_period = NULL;
 	for (p = uniname; *p; p++) {
-		if (*p == (UINT16) '.') last_period = p;
+		if (*p == (u16) '.') last_period = p;
 	}
 
 	i = 0;
@@ -115,11 +115,11 @@ void nls_uniname_to_dosname(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_N
 			}
 		}
 
-		if (*uniname == (UINT16) '\0') {
+		if (*uniname == (u16) '\0') {
 			break;
-		} else if (*uniname == (UINT16) ' ') {
+		} else if (*uniname == (u16) ' ') {
 			lossy = TRUE;
-		} else if (*uniname == (UINT16) '.') {
+		} else if (*uniname == (u16) '.') {
 			if (uniname < last_period) lossy = TRUE;
 			else i = 8;
 		} else if (WSTRCHR(bad_dos_chars, *uniname)) {
@@ -175,10 +175,10 @@ void nls_uniname_to_dosname(struct super_block *sb, DOS_NAME_T *p_dosname, UNI_N
 
 void nls_dosname_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, DOS_NAME_T *p_dosname)
 {
-	INT32 i = 0, j, n = 0;
-	UINT8 buf[DOS_NAME_LENGTH+2];
-	UINT8 *dosname = p_dosname->name;
-	UINT16 *uniname = p_uniname->name;
+	s32 i = 0, j, n = 0;
+	u8 buf[DOS_NAME_LENGTH+2];
+	u8 *dosname = p_dosname->name;
+	u16 *uniname = p_uniname->name;
 	struct nls_table *nls = EXFAT_SB(sb)->nls_disk;
 
 	if (*dosname == 0x05) {
@@ -220,27 +220,27 @@ void nls_dosname_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, DOS_N
 		j++;
 	}
 
-	*uniname = (UINT16) '\0';
+	*uniname = (u16) '\0';
 }
 
-void nls_uniname_to_cstring(struct super_block *sb, UINT8 *p_cstring, UNI_NAME_T *p_uniname)
+void nls_uniname_to_cstring(struct super_block *sb, u8 *p_cstring, UNI_NAME_T *p_uniname)
 {
-	INT32 i, j, len;
-	UINT8 buf[MAX_CHARSET_SIZE];
-	UINT16 *uniname = p_uniname->name;
+	s32 i, j, len;
+	u8 buf[MAX_CHARSET_SIZE];
+	u16 *uniname = p_uniname->name;
 	struct nls_table *nls = EXFAT_SB(sb)->nls_io;
 
 	i = 0;
 	while (i < (MAX_NAME_LENGTH-1)) {
-		if (*uniname == (UINT16) '\0') break;
+		if (*uniname == (u16) '\0') break;
 
 		len = convert_uni_to_ch(nls, buf, *uniname, NULL);
 
 		if (len > 1) {
 			for (j = 0; j < len; j++)
-				*p_cstring++ = (INT8) *(buf+j);
+				*p_cstring++ = (s8) *(buf+j);
 		} else {
-			*p_cstring++ = (INT8) *buf;
+			*p_cstring++ = (s8) *buf;
 		}
 
 		uniname++;
@@ -250,22 +250,22 @@ void nls_uniname_to_cstring(struct super_block *sb, UINT8 *p_cstring, UNI_NAME_T
 	*p_cstring = '\0';
 }
 
-void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8 *p_cstring, INT32 *p_lossy)
+void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, u8 *p_cstring, s32 *p_lossy)
 {
-	INT32 i, j, lossy = FALSE;
-	UINT8 *end_of_name;
-	UINT16 upname[MAX_NAME_LENGTH];
-	UINT16 *uniname = p_uniname->name;
+	s32 i, j, lossy = FALSE;
+	u8 *end_of_name;
+	u16 upname[MAX_NAME_LENGTH];
+	u16 *uniname = p_uniname->name;
 	struct nls_table *nls = EXFAT_SB(sb)->nls_io;
 
-	end_of_name = p_cstring + STRLEN((INT8 *) p_cstring);
+	end_of_name = p_cstring + STRLEN((s8 *) p_cstring);
 
 	while (*(--end_of_name) == ' ') {
 		if (end_of_name < p_cstring) break;
 	}
 	*(++end_of_name) = '\0';
 
-	if (STRCMP((INT8 *) p_cstring, ".") && STRCMP((INT8 *) p_cstring, "..")) {
+	if (STRCMP((s8 *) p_cstring, ".") && STRCMP((s8 *) p_cstring, "..")) {
 		while (*(--end_of_name) == '.') {
 			if (end_of_name < p_cstring) break;
 		}
@@ -279,7 +279,7 @@ void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8
 	while (j < (MAX_NAME_LENGTH-1)) {
 		if (*(p_cstring+i) == '\0') break;
 
-		i += convert_ch_to_uni(nls, uniname, (UINT8 *)(p_cstring+i), &lossy);
+		i += convert_ch_to_uni(nls, uniname, (u8 *)(p_cstring+i), &lossy);
 
 		if ((*uniname < 0x0020) || WSTRCHR(bad_uni_chars, *uniname))
 			lossy = TRUE;
@@ -292,7 +292,7 @@ void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8
 
 	if (*(p_cstring+i) != '\0')
 		lossy = TRUE;
-	*uniname = (UINT16) '\0';
+	*uniname = (u16) '\0';
 
 	p_uniname->name_len = j;
 	p_uniname->name_hash = calc_checksum_2byte((void *) upname, j<<1, 0, CS_DEFAULT);
@@ -301,14 +301,14 @@ void nls_cstring_to_uniname(struct super_block *sb, UNI_NAME_T *p_uniname, UINT8
 		*p_lossy = lossy;
 }
 
-static INT32 convert_ch_to_uni(struct nls_table *nls, UINT16 *uni, UINT8 *ch, INT32 *lossy)
+static s32 convert_ch_to_uni(struct nls_table *nls, u16 *uni, u8 *ch, s32 *lossy)
 {
 	int len;
 
 	*uni = 0x0;
 
 	if (ch[0] < 0x80) {
-		*uni = (UINT16) ch[0];
+		*uni = (u16) ch[0];
 		return(1);
 	}
 
@@ -316,7 +316,7 @@ static INT32 convert_ch_to_uni(struct nls_table *nls, UINT16 *uni, UINT8 *ch, IN
 		printk("%s: fail to use nls \n", __func__);
 		if (lossy != NULL)
 			*lossy = TRUE;
-		*uni = (UINT16) '_';
+		*uni = (u16) '_';
 		if (!strcmp(nls->charset, "utf8")) return(1);
 		else return(2);
 	}
@@ -324,14 +324,14 @@ static INT32 convert_ch_to_uni(struct nls_table *nls, UINT16 *uni, UINT8 *ch, IN
 	return(len);
 }
 
-static INT32 convert_uni_to_ch(struct nls_table *nls, UINT8 *ch, UINT16 uni, INT32 *lossy)
+static s32 convert_uni_to_ch(struct nls_table *nls, u8 *ch, u16 uni, s32 *lossy)
 {
 	int len;
 
 	ch[0] = 0x0;
 
 	if (uni < 0x0080) {
-		ch[0] = (UINT8) uni;
+		ch[0] = (u8) uni;
 		return(1);
 	}
 
