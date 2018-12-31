@@ -48,6 +48,13 @@
 /*  Constant & Macro Definitions (Non-Configurable)                     */
 /*----------------------------------------------------------------------*/
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,17,0)
+#define current_time(x)	(CURRENT_TIME_SEC)
+typedef struct timespec timespec_t;
+#else
+typedef struct timespec64 timespec_t;
+#endif
+
 /*----------------------------------------------------------------------*/
 /*  Type Definitions                                                    */
 /*----------------------------------------------------------------------*/

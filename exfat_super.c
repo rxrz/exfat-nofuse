@@ -45,6 +45,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <linux/kernel.h>
 #include <linux/version.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -98,11 +99,7 @@ static char exfat_default_iocharset[] = CONFIG_EXFAT_DEFAULT_IOCHARSET;
 
 extern struct timezone sys_tz;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0)
-#define current_time(x)	(CURRENT_TIME_SEC)
-#endif
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 16, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,16,0)
 #define USE_NEW_IVERSION_API
 #define INC_IVERSION(x) (inode_inc_iversion(x))
 #define GET_IVERSION(x) (inode_peek_iversion_raw(x))
@@ -147,7 +144,7 @@ static time_t accum_days_in_year[] = {
 static void _exfat_truncate(struct inode *inode, loff_t old_size);
 
 /* Convert a FAT time/date pair to a UNIX date (seconds since 1 1 70). */
-void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec *ts,
+void exfat_time_fat2unix(struct exfat_sb_info *sbi, timespec_t *ts,
 						 DATE_TIME_T *tp)
 {
 	time_t year = tp->Year;
@@ -166,7 +163,7 @@ void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec *ts,
 }
 
 /* Convert linear UNIX date to a FAT time/date pair. */
-void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec *ts,
+void exfat_time_unix2fat(struct exfat_sb_info *sbi, timespec_t *ts,
 						 DATE_TIME_T *tp)
 {
 	time_t second = ts->tv_sec;
@@ -1919,6 +1916,7 @@ static int exfat_fill_inode(struct inode *inode, FILE_ID_T *fid)
 		i_size_write(inode, info.Size);
 		EXFAT_I(inode)->mmu_private = i_size_read(inode);
 	}
+
 	exfat_save_attr(inode, info.Attr);
 
 	inode->i_blocks = ((i_size_read(inode) + (p_fs->cluster_size - 1))
