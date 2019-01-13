@@ -1757,8 +1757,12 @@ void fs_error(struct super_block *sb)
 
 	if (opts->errors == EXFAT_ERRORS_PANIC)
 		panic("[EXFAT] Filesystem panic from previous error\n");
-	else if ((opts->errors == EXFAT_ERRORS_RO) && !(sb->s_flags & MS_RDONLY)) {
+	else if ((opts->errors == EXFAT_ERRORS_RO) && !EXFAT_IS_SB_RDONLY(sb)) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
 		sb->s_flags |= MS_RDONLY;
+#else
+		sb->s_flags |= SB_RDONLY;
+#endif
 		printk(KERN_ERR "[EXFAT] Filesystem has been set read-only\n");
 	}
 }
