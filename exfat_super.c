@@ -147,7 +147,7 @@ static time_t accum_days_in_year[] = {
 static void _exfat_truncate(struct inode *inode, loff_t old_size);
 
 /* Convert a FAT time/date pair to a UNIX date (seconds since 1 1 70). */
-void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec *ts,
+void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec64 *ts,
 						 DATE_TIME_T *tp)
 {
 	time_t year = tp->Year;
@@ -166,7 +166,7 @@ void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec *ts,
 }
 
 /* Convert linear UNIX date to a FAT time/date pair. */
-void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec *ts,
+void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec64 *ts,
 						 DATE_TIME_T *tp)
 {
 	time_t second = ts->tv_sec;
@@ -2080,7 +2080,7 @@ static void exfat_write_super(struct super_block *sb)
 
 	__set_sb_clean(sb);
 
-	if (!(sb->s_flags & MS_RDONLY))
+	if (!(sb->s_flags & SB_RDONLY))
 		FsSyncVol(sb, 1);
 
 	__unlock_super(sb);
@@ -2136,7 +2136,7 @@ static int exfat_statfs(struct dentry *dentry, struct kstatfs *buf)
 
 static int exfat_remount(struct super_block *sb, int *flags, char *data)
 {
-	*flags |= MS_NODIRATIME;
+	*flags |= SB_NODIRATIME;
 	return 0;
 }
 
@@ -2489,7 +2489,7 @@ static int exfat_fill_super(struct super_block *sb, void *data, int silent)
 	mutex_init(&sbi->s_lock);
 #endif
 	sb->s_fs_info = sbi;
-	sb->s_flags |= MS_NODIRATIME;
+	sb->s_flags |= SB_NODIRATIME;
 	sb->s_magic = EXFAT_SUPER_MAGIC;
 	sb->s_op = &exfat_sops;
 	sb->s_export_op = &exfat_export_ops;
