@@ -49,6 +49,9 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/time.h>
+#ifndef _TIME_T
+typedef time64_t    time_t;
+#endif
 #include <linux/slab.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37)
 #include <linux/smp_lock.h>

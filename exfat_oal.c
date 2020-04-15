@@ -44,6 +44,9 @@
 
 #include <linux/semaphore.h>
 #include <linux/time.h>
+#ifndef _TIME_T
+typedef time64_t    time_t;
+#endif
 
 #include "exfat_config.h"
 #include "exfat_api.h"
