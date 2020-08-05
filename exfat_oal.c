@@ -121,7 +121,7 @@ extern struct timezone sys_tz;
 	} while (0)
 
 /* Linear day numbers of the respective 1sts in non-leap years. */
-static time_t accum_days_in_year[] = {
+static ktime_t accum_days_in_year[] = {
 	/* Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec */
 	0,   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 0, 0, 0,
 };
@@ -129,7 +129,7 @@ static time_t accum_days_in_year[] = {
 TIMESTAMP_T *tm_current(TIMESTAMP_T *tp)
 {
 	struct timespec ts;
-	time_t second, day, leap_day, month, year;
+	ktime_t second, day, leap_day, month, year;
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0)
 	ts = CURRENT_TIME_SEC;
