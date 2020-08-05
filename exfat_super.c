@@ -147,7 +147,7 @@ static ktime_t accum_days_in_year[] = {
 static void _exfat_truncate(struct inode *inode, loff_t old_size);
 
 /* Convert a FAT time/date pair to a UNIX date (seconds since 1 1 70). */
-void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec *ts,
+void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec64 *ts,
 						 DATE_TIME_T *tp)
 {
 	ktime_t year = tp->Year;
@@ -166,7 +166,7 @@ void exfat_time_fat2unix(struct exfat_sb_info *sbi, struct timespec *ts,
 }
 
 /* Convert linear UNIX date to a FAT time/date pair. */
-void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec *ts,
+void exfat_time_unix2fat(struct exfat_sb_info *sbi, struct timespec64 *ts,
 						 DATE_TIME_T *tp)
 {
 	ktime_t second = ts->tv_sec;
